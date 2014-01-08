@@ -6,7 +6,7 @@ classdef cluster < handle
         D_cell;        % time series data array, contains all the input time series data
         D_size;
         Theta_array;    % cluster parameter array
-        known_cluster_size;
+        
     end
     
     methods
