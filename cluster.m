@@ -38,7 +38,7 @@ classdef cluster < handle
         
        %% EM procedure
         function EM(self)
-            
+            % TODO:Vectorize
             while true
                 [self.cluster_num,~]=size(self.Theta_array);
                 %P_w_x_Theta=zeros(self.cluster_num,self.D_size);
@@ -71,7 +71,12 @@ classdef cluster < handle
                     end
                 end
                 
+                %% M step
+                % update P_w as (A.2) on page 9
+                self.P_w = mean(self.P_w_x_Theta,2);
                 
+                    
+                %% Convergence condition
             end
         end
         
