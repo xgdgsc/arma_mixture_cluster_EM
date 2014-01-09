@@ -5,6 +5,7 @@ classdef parameter < handle
         %class properties
         p;
         q;
+        phi0;
         phi_array;
         theta_array;
         sigma;
@@ -18,6 +19,7 @@ classdef parameter < handle
         end
         
         function random_init(self)
+            self.phi0=rand;
             if self.p~=0
                 self.phi_array=rand(self.p,1);
             end
