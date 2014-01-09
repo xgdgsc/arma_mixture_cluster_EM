@@ -43,6 +43,7 @@ classdef cluster < handle
                 [self.cluster_num,~]=size(self.Theta_array);
                 %P_w_x_Theta=zeros(self.cluster_num,self.D_size);
                 
+                %% E step
                 %calculate p_x_phi, prepare the calculation of p_w_x_Theta
                 p_x_phi=zeros([self.D_size,self.cluster_num]);
                 for i=1:self.D_size
@@ -61,6 +62,15 @@ classdef cluster < handle
                     end
                     self.P_w_x_Theta(:,i)=self.P_w_x_Theta(:,i)/denominator;
                 end
+                
+                %Calculate Q(Theta|Theta(t)) as in (2) on page 4
+                Q=0;
+                for i=1:self.D_size
+                    for k=1:self.cluster_num
+                        Q=Q+self.P_w_x_Theta(k,i)*(log(p_x_phi(i,k))+log(self.P_w(k,1)));
+                    end
+                end
+                
                 
             end
         end
