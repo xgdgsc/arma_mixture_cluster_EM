@@ -25,3 +25,4 @@ D{3,1}=Y3;
 D{4,1}=Y4;
 clusterObj=cluster(D);
 clusterObj.initialize(1,0,2);
+clusterObj.EM();
