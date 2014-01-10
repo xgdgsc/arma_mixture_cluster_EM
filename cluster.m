@@ -96,12 +96,17 @@ classdef cluster < handle
                 % update other parameters as (A.7) on page 10
                 for k=1:self.cluster_num
                     % calculate Wk
-                    Wk=0;
+                    p=self.Theta_array{k,1}.p;
+                    q=self.Theta_array{k,1}.q;
+                    Wk=zeros(p+q+1,p+q+1);
                     for i=1:self.D_size
                         A=self.calcA(i,k);
                         B=self.calcB(e_cell,i,k);
                         C=self.calcC(e_cell,i,k);
                         D=self.calcD(e_cell,i,k);
+                        M=cat(1,cat(2,A,B),cat(2,C,D));
+                        M=self.P_w_x_Theta(k,i).*M;
+                        Wk=Wk+M;
                     end
                 end
                 
