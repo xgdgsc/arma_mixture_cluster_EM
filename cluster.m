@@ -46,7 +46,7 @@ classdef cluster < handle
               %% E step
                 %calculate p_x_phi, prepare the calculation of p_w_x_Theta
                 p_x_phi=zeros([self.D_size,self.cluster_num]);
-                %store E cell array for M step calculation of sigma
+                %store E cell array([D_size*cluster_num]) for M step calculation of sigma
                 e_cell=cell(self.D_size,self.cluster_num);
                 for i=1:self.D_size
                     for j=1:self.cluster_num
@@ -90,8 +90,18 @@ classdef cluster < handle
                     sigma=sqrt(numerator/denominator);
                     self.Theta_array{k,1}.sigma=sigma;
                 end
-                    
-                %% Convergence condition
+                
+                % update other parameters as (A.7) on page 10
+                for k=1:self.cluster_num
+                    % calculate Wk
+                    Wk=0;
+                    for i=1:self.D_size
+                        A=self.calcA(i,k);
+                    end
+                end
+                
+                
+              %% Convergence condition
             end
         end
         
@@ -127,7 +137,36 @@ classdef cluster < handle
            p_x_phi=exp(-n/2*log(2*pi*(parameterObj.sigma^2))-1/(2*parameterObj.sigma^2)*sum(e.^2));
         end
         
-
+        %% M step functions
+         function A=calcA(self,i,k)
+             p=self.Theta_array{k,1}.p;
+             A=zeros(p+1,p+1);
+             [n,~]=size(self.D_cell{i,1});
+             A(1,1)=n;
+             % calc a_0v
+             for v=1:p
+                 %s for sum
+                 s=0;
+                 for t=v+1:n
+                     s=s+self.D_cell{i,1}(t-v,1);
+                 end
+                 A(1,v+1)=s;
+             end
+             % calc a_uv
+             for v=1:p
+                 for u=1:p
+                     s=0;
+                     for t=1:n
+                         if t-u>0 && t-v>0
+                             s=s+self.D_cell{i,1}(t-u,1)+self.D_cell{i,1}(t-v,1);
+                         end
+                     end
+                     A(u+1,v+1)=s;
+                 end
+             end
+         end
+         
+         
     end
     
 end
