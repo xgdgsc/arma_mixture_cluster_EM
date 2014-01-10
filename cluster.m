@@ -108,6 +108,16 @@ classdef cluster < handle
                         M=self.P_w_x_Theta(k,i).*M;
                         Wk=Wk+M;
                     end
+                    
+                    % calc Uk
+                    Uk=zeros(p+q+1,1);
+                    for i=1:self.D_size
+                        ac=self.calcAc(e_cell,i,k);
+                        Uk=Uk+self.P_w_x_Theta(k,i).*ac;
+                    end
+                    
+                    % calc delta_k
+                    
                 end
                 
                 
@@ -254,6 +264,33 @@ classdef cluster < handle
              end
          end
          
+         % calc a(0~p)c(1~q) vector for Uk
+         function ac=calcAc(self,e_cell,i,k)
+             p=self.Theta_array{k,1}.p;
+             q=self.Theta_array{k,1}.q;
+             ac=zeros(p+q+1,1);
+             e=e_cell{i,k};
+             x=self.D_cell{i,1};
+             [n,~]=size(x);
+             %a_0
+             ac(1,1)=sum(x);
+             %a_v
+             for v=1:p
+                 s=0;
+                 for t=v+1:n
+                     s=s+x(t,1)*x(t-v,1);
+                 end
+                 ac(v+1,1)=s;
+             end
+             %c_v
+             for v=1:q
+                 s=0;
+                 for t=v+1:n
+                     s=s+x(t,1)*e(t-v,1);
+                 end
+                 ac(p+1+v,1)=s;
+             end
+         end
          
     end
     
