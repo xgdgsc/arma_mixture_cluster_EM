@@ -97,6 +97,7 @@ classdef cluster < handle
                     Wk=0;
                     for i=1:self.D_size
                         A=self.calcA(i,k);
+                        B=self.calcB(e_cell,i,k);
                     end
                 end
                 
@@ -138,6 +139,8 @@ classdef cluster < handle
         end
         
         %% M step functions
+        
+         % calc A as shown in page 10 right column
          function A=calcA(self,i,k)
              p=self.Theta_array{k,1}.p;
              A=zeros(p+1,p+1);
@@ -166,6 +169,35 @@ classdef cluster < handle
              end
          end
          
+         % calc B as shown in page 10 right column
+         function B=calcB(self,e_cell,i,k)
+             p=self.Theta_array{k,1}.p;
+             q=self.Theta_array{k,1}.q;
+             B=zeros(p+1,q);
+             e=e_cell{i,k};
+             [n,~]=size(self.D_cell{i,1});
+             % calc b_0v
+             for v=1:q
+                 s=0;
+                 for t=v+1:n
+                     s=s+e(t-v,1);
+                 end
+                 B(1,v)=s;
+             end
+             
+             % calc b_uv
+              for u=1:p
+                 for v=1:q
+                     s=0;
+                     for t=1:n
+                         if t-u>0 && t-v>0
+                            s=s+e(t-u,1)*self.D_cell{i,1}(t-v,1);
+                         end
+                     end
+                     B(u+1,v)=s;
+                 end
+              end
+         end
          
     end
     
