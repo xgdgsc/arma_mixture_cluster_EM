@@ -43,12 +43,14 @@ classdef cluster < handle
                 [self.cluster_num,~]=size(self.Theta_array);
                 %P_w_x_Theta=zeros(self.cluster_num,self.D_size);
                 
-                %% E step
+              %% E step
                 %calculate p_x_phi, prepare the calculation of p_w_x_Theta
                 p_x_phi=zeros([self.D_size,self.cluster_num]);
+                %store E cell array for M step calculation of sigma
+                e_cell=cell(self.D_size,self.cluster_num);
                 for i=1:self.D_size
                     for j=1:self.cluster_num
-                        p_x_phi(i,j)=self.calc_P_x_phi(self.D_cell{i,1},self.Theta_array{j,1});
+                        [e_cell{i,j},p_x_phi(i,j)]=self.calc_P_x_phi(self.D_cell{i,1},self.Theta_array{j,1});
                     end
                 end
                 
@@ -71,10 +73,23 @@ classdef cluster < handle
                     end
                 end
                 
-                %% M step
+              %% M step
                 % update P_w as (A.2) on page 9
                 self.P_w = mean(self.P_w_x_Theta,2);
                 
+                % update sigma as (A.3) on page 9
+                for k=1:self.cluster_num
+                    denominator=0;
+                    numerator=0;
+                    for i=1:self.D_size
+                        [n,~]=size(self.D_cell{i,1});
+                        denominator=denominator+n*self.P_w_x_Theta(k,i);
+                        sum_e_2=sum(e_cell{i,k}.^2);
+                        numerator=numerator+self.P_w_x_Theta(k,i)*sum_e_2;
+                    end
+                    sigma=sqrt(numerator/denominator);
+                    self.Theta_array{k,1}.sigma=sigma;
+                end
                     
                 %% Convergence condition
             end
@@ -103,7 +118,7 @@ classdef cluster < handle
         end
         
         %Calculate p(x|phi) (page 3 , above et=, adapted from ln())
-        function p_x_phi=calc_P_x_phi(self,x,parameterObj)
+        function [e,p_x_phi]=calc_P_x_phi(self,x,parameterObj)
            [n,~]=size(x);
            e=zeros(n,1);
            for t=1:n
