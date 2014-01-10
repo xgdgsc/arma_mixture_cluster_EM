@@ -117,7 +117,15 @@ classdef cluster < handle
                     end
                     
                     % calc delta_k
-                    
+                    delta_k=inv(Wk)*Uk;
+                    % update Theta array
+                    self.Theta_array{k,1}.phi0=delta_k(1,1);
+                    for i=1:p
+                        self.Theta_array{k,1}.phi_array(i,1)=delta_k(i,1);
+                    end
+                    for i=1:q
+                        self.Theta_array{k,1}.theta_array(i,1)=delta_k(i+p+1,1);
+                    end   
                 end
                 
                 
