@@ -144,16 +144,15 @@ classdef cluster < handle
          function A=calcA(self,i,k)
              p=self.Theta_array{k,1}.p;
              A=zeros(p+1,p+1);
-             [n,~]=size(self.D_cell{i,1});
+             x=self.D_cell{i,1};
+             [n,~]=size(x);
              A(1,1)=n;
-             % calc a_0v
+             % calc a_0v,a_u0
              for v=1:p
                  %s for sum
-                 s=0;
-                 for t=v+1:n
-                     s=s+self.D_cell{i,1}(t-v,1);
-                 end
+                 s=sum(x(v+1:n,1));
                  A(1,v+1)=s;
+                 A(v+1,1)=s; %a_u0
              end
              % calc a_uv
              for v=1:p
@@ -161,7 +160,7 @@ classdef cluster < handle
                      s=0;
                      for t=1:n
                          if t-u>0 && t-v>0
-                             s=s+self.D_cell{i,1}(t-u,1)+self.D_cell{i,1}(t-v,1);
+                             s=s+x(t-u,1)*x(t-v,1);
                          end
                      end
                      A(u+1,v+1)=s;
@@ -175,13 +174,11 @@ classdef cluster < handle
              q=self.Theta_array{k,1}.q;
              B=zeros(p+1,q);
              e=e_cell{i,k};
-             [n,~]=size(self.D_cell{i,1});
+             x=self.D_cell{i,1};
+             [n,~]=size(x);
              % calc b_0v
              for v=1:q
-                 s=0;
-                 for t=v+1:n
-                     s=s+e(t-v,1);
-                 end
+                 s=sum(e(v+1:n,1));
                  B(1,v)=s;
              end
              
@@ -191,7 +188,7 @@ classdef cluster < handle
                      s=0;
                      for t=1:n
                          if t-u>0 && t-v>0
-                            s=s+e(t-u,1)*self.D_cell{i,1}(t-v,1);
+                            s=s+e(t-u,1)*x(t-v,1);
                          end
                      end
                      B(u+1,v)=s;
@@ -199,6 +196,32 @@ classdef cluster < handle
               end
          end
          
+         % calc C as shown in page 10 right column
+         function C=calcC(self,e_cell,i,k)
+             p=self.Theta_array{k,1}.p;
+             q=self.Theta_array{k,1}.q;
+             C=zeros(q,p+1);
+             e=e_cell{i,k};
+             x=self.D_cell{i,1};
+             [n,~]=size(x);
+             %calc c_u0
+             for u=1:q
+                 s=sum(e(u+1:n,1));
+                 C(u,1)=s;
+             end
+             %calc c_uv
+             for u=1:q
+                 for v=1:p
+                     s=0;
+                     for t=1:n
+                         if t-u>0 && t-v>0
+                             s=s+x(t-u,1)*e(t-v,1);
+                         end
+                     end
+                     C(u,v+1)=s;
+                 end
+             end
+         end
     end
     
 end
