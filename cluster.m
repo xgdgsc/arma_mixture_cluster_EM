@@ -40,11 +40,13 @@ classdef cluster < handle
         function EM(self)
             % TODO:Vectorize
             iter=0;
+            old_likelihood=0;
+            likelihood=0;
             while true
                 iter=iter+1
                 [self.cluster_num,~]=size(self.Theta_array);
                 %P_w_x_Theta=zeros(self.cluster_num,self.D_size);
-                
+                old_likelihood=likelihood;
               %% E step
                 %calculate p_x_phi, prepare the calculation of p_w_x_Theta
                 p_x_phi=zeros([self.D_size,self.cluster_num]);
@@ -74,7 +76,7 @@ classdef cluster < handle
                         Q=Q+self.P_w_x_Theta(k,i)*(log(p_x_phi(i,k))+log(self.P_w(k,1)));
                     end
                 end
-                
+                likelihood=Q;
               %% M step
                 % update P_w as (A.2) on page 9
                 self.P_w = mean(self.P_w_x_Theta,2);
@@ -129,7 +131,16 @@ classdef cluster < handle
                 end
                 
                 
-              %% Convergence condition
+              %% Convergence condition 
+                % Question: what does significantly large in paper mean?
+                % here use the first easier criteria.
+                threshold=10;
+                old_likelihood
+                likelihood
+                if likelihood-old_likelihood<threshold
+                    break;
+                end
+              
             end
         end
         
