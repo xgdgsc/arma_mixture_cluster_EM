@@ -39,7 +39,9 @@ classdef cluster < handle
        %% EM procedure
         function EM(self)
             % TODO:Vectorize
+            iter=0;
             while true
+                iter=iter+1
                 [self.cluster_num,~]=size(self.Theta_array);
                 %P_w_x_Theta=zeros(self.cluster_num,self.D_size);
                 
@@ -98,6 +100,8 @@ classdef cluster < handle
                     for i=1:self.D_size
                         A=self.calcA(i,k);
                         B=self.calcB(e_cell,i,k);
+                        C=self.calcC(e_cell,i,k);
+                        D=self.calcD(e_cell,i,k);
                     end
                 end
                 
@@ -222,6 +226,30 @@ classdef cluster < handle
                  end
              end
          end
+         
+         % calc D as shown in page 10 right column
+         function D=calcD(self,e_cell,i,k)
+             %p=self.Theta_array{k,1}.p;
+             q=self.Theta_array{k,1}.q;
+             D=zeros(q,q);
+             e=e_cell{i,k};
+             x=self.D_cell{i,1};
+             [n,~]=size(x);
+             %calc d_uv
+             for u=1:q
+                 for v=1:q
+                     s=0;
+                     for t=1:n
+                         if t-u>0 && t-v>0
+                             s=s+e(t-u,1)*e(t-v,1);
+                         end
+                     end
+                     D(u,v)=s;
+                 end
+             end
+         end
+         
+         
     end
     
 end
