@@ -53,27 +53,40 @@ classdef cluster < handle
                 %store E cell array([D_size*cluster_num]) for M step calculation of sigma
                 e_cell=cell(self.D_size,self.cluster_num);
                 for i=1:self.D_size
-                    for j=1:self.cluster_num
-                        [e_cell{i,j},p_x_phi(i,j)]=self.calc_P_x_phi(self.D_cell{i,1},self.Theta_array{j,1});
-                    end
-                end
-                
-                
-                %Calculate P(wk|xi,Theta) as in (3) on page 4
-                for i=1:self.D_size
-                    denominator=0;
                     for k=1:self.cluster_num
-                        self.P_w_x_Theta(k,i)=p_x_phi(i,k)*self.P_w(k,1);
-                        denominator=denominator+self.P_w_x_Theta(k,i);
+                        [e_cell{i,k},p_x_phi(i,k)]=self.calc_P_x_phi(self.D_cell{i,1},self.Theta_array{k,1});
                     end
-                    self.P_w_x_Theta(:,i)=self.P_w_x_Theta(:,i)/denominator;
                 end
+                
+                
+%                 %Calculate P(wk|xi,Theta) as in (3) on page 4
+%                 for i=1:self.D_size
+%                     denominator=0;
+%                     for k=1:self.cluster_num
+%                         self.P_w_x_Theta(k,i)=p_x_phi(i,k)*self.P_w(k,1);
+%                         denominator=denominator+self.P_w_x_Theta(k,i);
+%                     end
+%                     self.P_w_x_Theta(:,i)=self.P_w_x_Theta(:,i)/denominator;
+%                 end
+                
+                %Calculate P(wk|xi,Theta) as ln (3) on page 4
+                % ln(P(wk|xi,Theta))=ln(p_x_phi) + ln(P_w)-logSumExp()
+                % use logSumExp to avoid underflow
+                % p_x_phi is now ln(p)
+                logsumexp_array=transpose(logSumExp(transpose(p_x_phi)+repmat(log(self.P_w),1,self.D_size)));
+                for i=1:self.D_size
+                     for k=1:self.cluster_num
+                        exp_up=p_x_phi(i,k)+log(self.P_w(k,1))-logsumexp_array(i,1);
+                        self.P_w_x_Theta(k,i)=exp(exp_up);
+                     end
+                 end
+                
                 
                 %Calculate Q(Theta|Theta(t)) as in (2) on page 4
                 Q=0;
                 for i=1:self.D_size
                     for k=1:self.cluster_num
-                        Q=Q+self.P_w_x_Theta(k,i)*(log(p_x_phi(i,k))+log(self.P_w(k,1)));
+                        Q=Q+self.P_w_x_Theta(k,i)*(p_x_phi(i,k)+log(self.P_w(k,1)));
                     end
                 end
                 likelihood=Q;
@@ -173,7 +186,9 @@ classdef cluster < handle
            for t=1:n
                e(t,1)=self.calc_Et(x,t,e,parameterObj);
            end
-           p_x_phi=exp(-n/2*log(2*pi*(parameterObj.sigma^2))-1/(2*parameterObj.sigma^2)*sum(e.^2));
+           %p_x_phi=exp(-n/2*log(2*pi*(parameterObj.sigma^2))-1/(2*parameterObj.sigma^2)*sum(e.^2));
+           %modified to ln
+           p_x_phi=-n/2*log(2*pi*(parameterObj.sigma^2))-1/(2*parameterObj.sigma^2)*sum(e.^2);
         end
         
         %% M step functions
