@@ -143,15 +143,7 @@ classdef cluster < handle
                     % calc delta_k
                     %delta_k=inv(Wk)*Uk;
 		    %------------------------%
-                    c_sum = sum(Wk);
-                    flag = 0;
-                    for i = 1:length(c_sum)
-                        if c_sum(i) ~= 0
-                            flag = 1;
-                            break;
-                        end
-                    end
-                    if flag
+                    if rcond(Wk)>1e-12
                         delta_k=inv(Wk)*Uk;
                     else
                         delta_k = zeros(1+p+q,1);
@@ -161,7 +153,7 @@ classdef cluster < handle
                     % update Theta array
                     self.Theta_array{k,1}.phi0=delta_k(1,1);
                     for i=1:p
-                        self.Theta_array{k,1}.phi_array(i,1)=delta_k(i,1);
+                        self.Theta_array{k,1}.phi_array(i,1)=delta_k(i+1,1);
                     end
                     for i=1:q
                         self.Theta_array{k,1}.theta_array(i,1)=delta_k(i+p+1,1);
@@ -175,7 +167,7 @@ classdef cluster < handle
                 threshold=10;
                 old_likelihood
                 likelihood
-                if likelihood-old_likelihood<threshold
+                if abs(likelihood-old_likelihood)<threshold
                     break;
                 end
               

@@ -19,14 +19,14 @@ classdef parameter < handle
         end
         
         function random_init(self)
-            self.phi0=rand;
+            self.phi0=0.01*randn;
             if self.p~=0
-                self.phi_array=rand(self.p,1);
+                self.phi_array=0.5+0.1*randn(self.p,1);
             end
             if self.q~=0
                 self.theta_array=rand(self.q,1);
             end
-            self.sigma=rand;
+            self.sigma=0.1+0.01*randn;
         end
     end
     
