@@ -104,7 +104,16 @@ classdef cluster < handle
                         sum_e_2=sum(e_cell{i,k}.^2);
                         numerator=numerator+self.P_w_x_Theta(k,i)*sum_e_2;
                     end
-                    sigma=sqrt(numerator/denominator);
+                    %sigma=sqrt(numerator/denominator);
+		    %----------------------------------%
+                    if denominator == 0
+                        sigma = 0;
+                    else
+                        sigma=sqrt(numerator/denominator);
+                    end
+		    %----------------------------------%
+		    
+
                     self.Theta_array{k,1}.sigma=sigma;
                 end
                 
@@ -132,7 +141,23 @@ classdef cluster < handle
                     end
                     
                     % calc delta_k
-                    delta_k=inv(Wk)*Uk;
+                    %delta_k=inv(Wk)*Uk;
+		    %------------------------%
+                    c_sum = sum(Wk);
+                    flag = 0;
+                    for i = 1:length(c_sum)
+                        if c_sum(i) ~= 0
+                            flag = 1;
+                            break;
+                        end
+                    end
+                    if flag
+                        delta_k=inv(Wk)*Uk;
+                    else
+                        delta_k = zeros(1+p+q,1);
+                    end
+		    %-------------------------%
+		    
                     % update Theta array
                     self.Theta_array{k,1}.phi0=delta_k(1,1);
                     for i=1:p
@@ -203,7 +228,10 @@ classdef cluster < handle
              % calc a_0v,a_u0
              for v=1:p
                  %s for sum
-                 s=sum(x(v+1:n,1));
+                 %s=sum(x(v+1:n,1));
+		 %-----------------%
+		 s=sum(x(1:n-v),1);
+		 %-----------------%
                  A(1,v+1)=s;
                  A(v+1,1)=s; %a_u0
              end
@@ -231,7 +259,10 @@ classdef cluster < handle
              [n,~]=size(x);
              % calc b_0v
              for v=1:q
-                 s=sum(e(v+1:n,1));
+                 %s=sum(e(v+1:n,1));
+		 %-------------------%
+		 s=sum(e(1:n-v,1));
+		 %-------------------%
                  B(1,v)=s;
              end
              
@@ -259,7 +290,10 @@ classdef cluster < handle
              [n,~]=size(x);
              %calc c_u0
              for u=1:q
-                 s=sum(e(u+1:n,1));
+                 %s=sum(e(u+1:n,1));
+		 %------------------%
+		 s=sum(e(1:n-u),1);
+		 %------------------%
                  C(u,1)=s;
              end
              %calc c_uv
