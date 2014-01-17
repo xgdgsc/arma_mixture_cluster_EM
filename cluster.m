@@ -9,6 +9,7 @@ classdef cluster < handle
         cluster_num;
         P_w_x_Theta;  % store P_wk_xi_Theta [cluster_num * D_size]
         P_w;
+        para_num;  % the number of parameters in each number component model
     end
     
     methods
@@ -34,14 +35,19 @@ classdef cluster < handle
             end
             %initialize P_wk_xi_Theta
             self.P_w_x_Theta=zeros([known_cluster_num,self.D_size]);
+            
+            %set parameter number
+            self.para_num = p+q+2;
         end
         
        %% EM procedure
-        function EM(self)
+        function [A, bic] = EM(self)
             % TODO:Vectorize
             iter=0;
             old_likelihood=0;
             likelihood=0;
+            % BIC: Bayesian information criterion
+            bic = []; 
             while true
                 iter=iter+1
                 [self.cluster_num,~]=size(self.Theta_array);
@@ -79,9 +85,8 @@ classdef cluster < handle
                         exp_up=p_x_phi(i,k)+log(self.P_w(k,1))-logsumexp_array(i,1);
                         self.P_w_x_Theta(k,i)=exp(exp_up);
                      end
-                 end
-                
-                
+                end
+                               
                 %Calculate Q(Theta|Theta(t)) as in (2) on page 4
                 Q=0;
                 for i=1:self.D_size
@@ -105,13 +110,13 @@ classdef cluster < handle
                         numerator=numerator+self.P_w_x_Theta(k,i)*sum_e_2;
                     end
                     %sigma=sqrt(numerator/denominator);
-		    %----------------------------------%
+                    %----------------------------------%
                     if denominator == 0
                         sigma = 0;
                     else
                         sigma=sqrt(numerator/denominator);
                     end
-		    %----------------------------------%
+                    %----------------------------------%
 		    
 
                     self.Theta_array{k,1}.sigma=sigma;
@@ -142,13 +147,13 @@ classdef cluster < handle
                     
                     % calc delta_k
                     %delta_k=inv(Wk)*Uk;
-		    %------------------------%
+                    %------------------------%
                     if rcond(Wk)>1e-12
                         delta_k=inv(Wk)*Uk;
                     else
                         delta_k = zeros(1+p+q,1);
                     end
-		    %-------------------------%
+                     %-------------------------%
 		    
                     % update Theta array
                     self.Theta_array{k,1}.phi0=delta_k(1,1);
@@ -167,7 +172,23 @@ classdef cluster < handle
                 threshold=10;
                 old_likelihood
                 likelihood
+                
+                % Calculate BIC value
+                tmp_bic = BIC(self.P_w_x_Theta, self.P_w, self.para_num);
+                bic(end+1,1) = tmp_bic; 
+                
                 if abs(likelihood-old_likelihood)<threshold
+                    % Generate clustering results
+                    %------------------------------%
+                    A = cell(self.cluster_num,1);
+                    for i = 1:self.D_size
+                        [~,index] = max(self.P_w_x_Theta(:,i));
+                        A{index}(end+1) = i;     
+                    end
+                    %self.P_w_x_Theta
+                    %self.cluster_num
+                    %self.D_size
+                    %------------------------------%
                     break;
                 end
               
@@ -221,9 +242,9 @@ classdef cluster < handle
              for v=1:p
                  %s for sum
                  %s=sum(x(v+1:n,1));
-		 %-----------------%
-		 s=sum(x(1:n-v),1);
-		 %-----------------%
+                 %-----------------%
+                 s=sum(x(1:n-v),1);
+                 %-----------------%
                  A(1,v+1)=s;
                  A(v+1,1)=s; %a_u0
              end
@@ -252,9 +273,9 @@ classdef cluster < handle
              % calc b_0v
              for v=1:q
                  %s=sum(e(v+1:n,1));
-		 %-------------------%
-		 s=sum(e(1:n-v,1));
-		 %-------------------%
+                 %-------------------%
+                 s=sum(e(1:n-v,1));
+                 %-------------------%
                  B(1,v)=s;
              end
              
@@ -283,9 +304,9 @@ classdef cluster < handle
              %calc c_u0
              for u=1:q
                  %s=sum(e(u+1:n,1));
-		 %------------------%
-		 s=sum(e(1:n-u),1);
-		 %------------------%
+                 %------------------%
+                 s=sum(e(1:n-u),1);
+                 %------------------%
                  C(u,1)=s;
              end
              %calc c_uv

@@ -63,9 +63,11 @@ function lse = logSumExp ( X )
  	% Subtract max in all columns from all column values and 
  	% calculate the final log sum exp
  	lse = xMax + log ( sum ( exp( X - ones(M,1) * xMax ) ) );
+    %上式中，将X的每一列都减去这一列中的最大值，然后对每个数取指数，然后对每列取和，再取对数，然后再加上最大值
+    %在仿真1中，lse最终的大小为1×30
 
  	% Check for infinity and if so take xMax as the value
   lseInf = ~isfinite(lse);
-  lse(lseInf) = xMax(lseInf);  
+  lse(lseInf) = xMax(lseInf); 
 
 end
