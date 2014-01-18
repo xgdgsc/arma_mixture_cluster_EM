@@ -4,9 +4,9 @@
 
 %Typical 3 AR(1) models:
 % component    AR coefficient    noise variance
-%     1         0.20 ¡À 0.01      0.01 ¡À 0.001
-%     2         0.50 ¡À 0.01      0.01 ¡À 0.001
-%     3         0.80 ¡À 0.01      0.01 ¡À 0.001
+%     1         0.20 Â± 0.01      0.01 Â± 0.001
+%     2         0.50 Â± 0.01      0.01 Â± 0.001
+%     3         0.80 Â± 0.01      0.01 Â± 0.001
 
 clear;
 maxCluster_num = 7;  % the possible maximum cluster number

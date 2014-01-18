@@ -4,8 +4,8 @@
 
 %Two AR(1) models:
 % component    AR coefficient    noise variance
-%     1         0.30 ¡À 0.01          0.01
-%     2         0.30 ¡À 0.01          0.02
+%     1         0.30 Â± 0.01          0.01
+%     2         0.30 Â± 0.01          0.02
 
     clear;
     

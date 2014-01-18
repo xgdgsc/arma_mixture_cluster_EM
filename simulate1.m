@@ -4,11 +4,11 @@
 
 %Two AR(1) models:
 % component    AR coefficient    noise variance
-%     1         0.60 ¡À 0.01          0.01
-%     2         0.55 ¡À 0.01          0.01
-%     3         0.50 ¡À 0.01          0.01
-%     4         0.45 ¡À 0.01          0.01
-%     5         0.40 ¡À 0.01          0.01
+%     1         0.60 Â± 0.01          0.01
+%     2         0.55 Â± 0.01          0.01
+%     3         0.50 Â± 0.01          0.01
+%     4         0.45 Â± 0.01          0.01
+%     5         0.40 Â± 0.01          0.01
 
 clear;
 %generate test time series
@@ -20,7 +20,7 @@ n = 1;
 for base = 0.6:-0.05:0.40
     sim = zeros(10,1);
     for t = 1:10 % 10 trils for each dataset
-        disp(['case: ', num2str(base), '¡À', num2str(0.01)]);
+        disp(['case: ', num2str(base), 'Â±', num2str(0.01)]);
         phi1=0.3-0.01+(0.3+0.01-(0.3-0.01)).*rand(15,1);
         for i=1:15
             model1{i,1} = arima('Constant',0,'AR',phi1(i,1),'ARLags',1,'Variance',0.01);

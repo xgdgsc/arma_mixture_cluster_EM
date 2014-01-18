@@ -63,8 +63,8 @@ function lse = logSumExp ( X )
  	% Subtract max in all columns from all column values and 
  	% calculate the final log sum exp
  	lse = xMax + log ( sum ( exp( X - ones(M,1) * xMax ) ) );
-    %ÉÏÊ½ÖĞ£¬½«XµÄÃ¿Ò»ÁĞ¶¼¼õÈ¥ÕâÒ»ÁĞÖĞµÄ×î´óÖµ£¬È»ºó¶ÔÃ¿¸öÊıÈ¡Ö¸Êı£¬È»ºó¶ÔÃ¿ÁĞÈ¡ºÍ£¬ÔÙÈ¡¶ÔÊı£¬È»ºóÔÙ¼ÓÉÏ×î´óÖµ
-    %ÔÚ·ÂÕæ1ÖĞ£¬lse×îÖÕµÄ´óĞ¡Îª1¡Á30
+    %ä¸Šå¼ä¸­ï¼Œå°†Xçš„æ¯ä¸€åˆ—éƒ½å‡å»è¿™ä¸€åˆ—ä¸­çš„æœ€å¤§å€¼ï¼Œç„¶åå¯¹æ¯ä¸ªæ•°å–æŒ‡æ•°ï¼Œç„¶åå¯¹æ¯åˆ—å–å’Œï¼Œå†å–å¯¹æ•°ï¼Œç„¶åå†åŠ ä¸Šæœ€å¤§å€¼
+    %åœ¨ä»¿çœŸ1ä¸­ï¼Œlseæœ€ç»ˆçš„å¤§å°ä¸º1Ã—30
 
  	% Check for infinity and if so take xMax as the value
   lseInf = ~isfinite(lse);
